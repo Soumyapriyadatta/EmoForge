@@ -1,7 +1,7 @@
 *.npy
 face/data/archive/
-speech/data/
-text/data/
+speech/data/Audio_Speech_Actors_01-24/
+text/data/*.tsv
 __pycache__/
 *.pyc
 .DS_Store
