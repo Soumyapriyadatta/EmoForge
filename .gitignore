@@ -1,6 +1,10 @@
 *.npy
+*.pt
+*.h5
 face/data/archive/
 speech/data/Audio_Speech_Actors_01-24/
+speech/data/CREMA-D/
+speech/data/TESS/
 text/data/*.tsv
 __pycache__/
 *.pyc
