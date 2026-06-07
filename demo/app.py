@@ -468,32 +468,28 @@ with tab2:
     """, unsafe_allow_html=True)
     col1, col2 = st.columns([2, 1])
     with col1:
-        audio_file = st.file_uploader("Upload WAV or MP3", type=['wav', 'mp3'])
+        audio_file = st.file_uploader("Upload audio or video (WAV, MP3, MP4, M4A)")
+
     with col2:
         if audio_file:
-            st.audio(audio_file)
-            audio_file.seek(0)
-            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
+            suffix = '.' + audio_file.name.split('.')[-1].lower()
+    
+        if suffix not in ['.wav', '.mp3', '.mp4', '.m4a']:
+            st.error("Please upload a WAV, MP3, MP4, or M4A file.")
+        else:
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
                 tmp.write(audio_file.read())
                 tmp_path = tmp.name
+        
+            # Convert to wav if needed
+            if suffix != '.wav':
+                wav_path = tmp_path.replace(suffix, '.wav')
+                os.system(f'ffmpeg -i "{tmp_path}" -ac 1 -ar 22050 "{wav_path}" -y -q:a 0')
+                os.unlink(tmp_path)
+                tmp_path = wav_path
+        
             emotion, probs = predict_speech(tmp_path)
             os.unlink(tmp_path)
-            if emotion:
-                show_result(emotion, max(probs), "Speech Emotion")
-                st.session_state['speech_probs']   = probs
-                st.session_state['speech_emotion'] = emotion
-        elif 'speech_emotion' in st.session_state:
-            show_result(
-                st.session_state['speech_emotion'],
-                max(st.session_state['speech_probs']), "Speech Emotion")
-        else:
-            st.markdown("""
-            <div style="border:1px dashed rgba(192,200,216,0.2);border-radius:4px;
-                padding:40px;text-align:center;color:rgba(192,200,216,0.4);">
-                <p style="font-family:'Montserrat',sans-serif;font-size:11px;
-                    letter-spacing:3px;text-transform:uppercase;">
-                    Upload an audio file to begin</p>
-            </div>""", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 # TAB 3 — TEXT
